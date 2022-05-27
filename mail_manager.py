@@ -97,17 +97,17 @@ class MailManager:
         except HttpError as error:
                 print(f'An error occurred: {error}')
         
-    def download(self, msg, only_attachement):
+    def download(self, msg, only_attachement, attachment_list=[]):
         print("Searching...")
         from manage_downloads import Download
         # get emails that match the query you specify
         searched_messages= Download.search_messages(service, msg)
         print("Matching results:- \n")
-        pprint(searched_messages)
-        # for each email matched, read it (output plain/text to console & save HTML and attachments)
-        
+        if only_attachement=='N':
+            pprint(searched_messages)
+        # for each email matched, download it (output plain/text to console & save HTML and attachments)
         for msg in searched_messages:
-            Download.download_message(service, msg, only_attachement)
+            Download.download_message(service, msg, only_attachement, attachment_list)
 
     def create_label(self, service):
         from manage_labels import Label
@@ -175,11 +175,17 @@ class MailManager:
                 self.create_message()
             self.send_message()
         
-        # user chooses to download attachment -----------------------------INCOMPLETE-------------
+        # user chooses to download attachment
         elif close_matches(choice, op3, 1, 0.9):
+            from manage_downloads import Download
             msg = input("Enter the attachement you want to download: ")
-            self.download(msg, 'Y')
-
+            attachment_list=[]
+            self.download(msg, 'Y',attachment_list)
+            response= Download.get_attachement_choice(attachment_list)
+            chosen_attachment= attachment_list[response]
+            Download.get_attachement(service, chosen_attachment['body'], chosen_attachment['message'],\
+                             chosen_attachment['folder_name'], chosen_attachment['filename'], chosen_attachment['file_size'] )
+        
         # user chooses to download email
         elif close_matches(choice, op4, 1, 0.9):
             msg = input("Enter the mail you want to download: ")

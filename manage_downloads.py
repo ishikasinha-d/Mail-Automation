@@ -1,6 +1,7 @@
 from __future__ import print_function
 import os.path
 from base64 import urlsafe_b64decode
+from tabulate import tabulate
 
 class Download:
 
@@ -35,15 +36,23 @@ class Download:
         # clean text for creating a folder
         return "".join(c if c.isalnum() else "_" for c in text)
 
+    def get_attachement_choice(attachment_list):
+        attachment_choice_list=[]
+        headers= ['S. No.', 'Filename', 'Filesize']
+        for indx, attachment in enumerate(attachment_list):
+           attachment_choice_list.append([indx+1, attachment['filename'], attachment['file_size']])
+        print(tabulate(attachment_choice_list, headers, tablefmt="github"))
+        return int(input("Enter S. No. of the attachment you want to download: "))-1
+
     def get_attachement(service, body, message, folder_name, filename, file_size):
         # we get the attachment ID 
         # and make another request to get the attachment itself
         print("Saving the file:", filename, "size:", Download.get_size_format(file_size), "in ", folder_name)
         attachment_id = body.get("attachmentId")
-        # print("bodyyyyyyyyy\n", body)
-        # print("atachedddddddddd\n",attachment_id)
         attachment = service.users().messages().attachments().get(id=attachment_id, userId='me', messageId=message['id']).execute()
         data = attachment.get("data")
+        if not os.path.isdir(folder_name):
+            os.mkdir(folder_name)
         filepath = os.path.join(folder_name, filename)
         if data:
             Download.write_in_file(filepath, data)
@@ -53,7 +62,7 @@ class Download:
                 f.write(urlsafe_b64decode(data))
 
     # function to parse the content of an email partition
-    def parse_parts(service, parts, folder_name, message, only_attachement):
+    def parse_parts(service, parts, folder_name, message, only_attachement, attachment_list):
         """
         Utility function that parses the content of an email partition
         """
@@ -68,7 +77,7 @@ class Download:
                 if part.get("parts"):
                     # recursively call this function when we see that a part
                     # has parts inside
-                    Download.parse_parts(service, part.get("parts"), folder_name, message, only_attachement)
+                    Download.parse_parts(service, part.get("parts"), folder_name, message, only_attachement, attachment_list)
                 if only_attachement == 'N' and mimeType == "text/plain":
                     # if the email part is text plain
                     if data:
@@ -79,6 +88,7 @@ class Download:
                     # save the HTML file and optionally open it in the browser
                     if not filename:
                         filename = "index.html"
+                    os.mkdir(folder_name)
                     filepath = os.path.join(folder_name, filename)
                     print("Saving HTML to", filepath)
                     Download.write_in_file(filepath, data)
@@ -89,10 +99,14 @@ class Download:
                     part_header_value = part_header.get("value")
                     if part_header_name == "Content-Disposition":
                         if "attachment" in part_header_value:
-                            Download.get_attachement(service, body, message, folder_name, filename, file_size)
+                            if only_attachement=='N':
+                                Download.get_attachement(service, body, message, folder_name, filename, file_size)
+                            else:
+                                attachment_list.append({'folder_name': folder_name, 'filename':filename, 'body': body, 'message': message, 'file_size': file_size})
+                            
 
     # main function for reading an email
-    def download_message(service, message, only_attachement):
+    def download_message(service, message, only_attachement, attachment_list):
         """
         This function takes Gmail API `service` and the given `message_id` and does the following:
             - Downloads the content of the email
@@ -113,12 +127,13 @@ class Download:
             for header in headers:
                 name = header.get("name")
                 value = header.get("value")
-                if name.lower() == 'from':
-                    # we print the From address
-                    print("From:", value)
-                if name.lower() == "to":
-                    # we print the To address
-                    print("To:", value)
+                if only_attachement == 'N':
+                    if name.lower() == 'from':
+                        # we print the From address
+                        print("From:", value)
+                    if name.lower() == "to":
+                        # we print the To address
+                        print("To:", value)
                 if name.lower() == "subject":
                     # make our boolean True, the email has "subject"
                     has_subject = True
@@ -137,15 +152,12 @@ class Download:
                             folder_name = f"{folder_name[:-3]}_{folder_counter}"
                         else:
                             folder_name = f"{folder_name}_{folder_counter}"
-                    os.mkdir(folder_name)
-                    print("Subject:", value)
-                if name.lower() == "date":
+                    if only_attachement == 'N':
+                        print("Subject:", value)      
+                if only_attachement == 'N' and name.lower() == "date":
                     # we print the date when the message was sent
                     print("Date:", value)
-        if not has_subject:
-            # if the email does not have a subject, then make a folder with "email" name
-            # since folders are created based on subjects
-            if not os.path.isdir(folder_name):
-                os.mkdir(folder_name)
-        Download.parse_parts(service, parts, folder_name, message, only_attachement)
-        print("="*50)
+
+        Download.parse_parts(service, parts, folder_name, message, only_attachement, attachment_list)
+        if only_attachement == 'N':
+            print("="*50)
