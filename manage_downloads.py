@@ -1,21 +1,27 @@
-from __future__ import print_function
+"""Importing required modules"""
 import os.path
 from base64 import urlsafe_b64decode
+from googleapiclient.errors import HttpError
 from tabulate import tabulate
 
 class Download:
 
     def search_messages(service, query):
-        result = service.users().messages().list(userId='me',q=query).execute()
-        messages = [ ]
-        if 'messages' in result:
-            messages.extend(result['messages'])
-        while 'nextPageToken' in result:
-            page_token = result['nextPageToken']
-            result = service.users().messages().list(userId='me',q=query, pageToken=page_token).execute()
+        """Function to search messages matching to the query"""
+        try:
+            result = service.users().messages().list(userId='me',q=query).execute()
+            messages = []
             if 'messages' in result:
                 messages.extend(result['messages'])
-        return messages
+            # searching on each page as the messages are paginated
+            while 'nextPageToken' in result:
+                page_token = result['nextPageToken']
+                result = service.users().messages().list(userId='me',q=query, pageToken=page_token).execute()
+                if 'messages' in result:
+                    messages.extend(result['messages'])
+            return messages
+        except HttpError as error:
+            print(f'An error occurred: {error}')
 
     # utility function print bytes in a nice format
     def get_size_format(b, factor=1024, suffix="B"):
@@ -31,12 +37,18 @@ class Download:
             b /= factor
         return f"{b:.2f}Y{suffix}"
 
-    # fucntion to make a folder name
+    # utility fucntion to make a folder name
     def clean(text):
-        # clean text for creating a folder
+        """Function to clean text for creating a folder"""
         return "".join(c if c.isalnum() else "_" for c in text)
 
+
     def get_attachement_choice(attachment_list):
+        """
+        Function to 
+        1. print matching attachements with details in a tabular format
+        2. input user choice and return it
+        """
         attachment_choice_list=[]
         headers= ['S. No.', 'Filename', 'Filesize']
         for indx, attachment in enumerate(attachment_list):
@@ -44,9 +56,18 @@ class Download:
         print(tabulate(attachment_choice_list, headers, tablefmt="github"))
         return int(input("Enter S. No. of the attachment you want to download: "))-1
 
+
+    def write_in_file(filepath, data):
+        """Function to download data"""
+        with open(filepath, "ab") as f:
+            f.write(urlsafe_b64decode(data))
+
     def get_attachement(service, body, message, folder_name, filename, file_size):
-        # we get the attachment ID 
-        # and make another request to get the attachment itself
+        """
+        Function to
+        1. get the attachment ID and make another request to get the attachment itself
+        2. download the attachment
+        """
         print("Saving the file:", filename, "size:", Download.get_size_format(file_size), "in ", folder_name)
         attachment_id = body.get("attachmentId")
         attachment = service.users().messages().attachments().get(id=attachment_id, userId='me', messageId=message['id']).execute()
@@ -57,14 +78,15 @@ class Download:
         if data:
             Download.write_in_file(filepath, data)
 
-    def write_in_file(filepath, data):
-        with open(filepath, "ab") as f:
-                f.write(urlsafe_b64decode(data))
-
-    # function to parse the content of an email partition
+   
+    # utilityfunction to parse the content of an email partition
     def parse_parts(service, parts, folder_name, message, only_attachement, attachment_list):
         """
-        Utility function that parses the content of an email partition
+        Function to 
+        1. parse the content of an email partition
+        2. Download text/html content (if available) and save it under the folder created as index.html
+        3. Download any file that is attached to the email and save it in the folder created
+        4. Download an attachement from a mail
         """
         if parts:
             for part in parts:
@@ -78,11 +100,13 @@ class Download:
                     # recursively call this function when we see that a part
                     # has parts inside
                     Download.parse_parts(service, part.get("parts"), folder_name, message, only_attachement, attachment_list)
+                # when the user wants to download the whole mail
                 if only_attachement == 'N' and mimeType == "text/plain":
                     # if the email part is text plain
                     if data:
                         text = urlsafe_b64decode(data).decode()
                         print(text)
+                # when the user wants to download the whole mail
                 elif only_attachement == 'N' and mimeType == "text/html":
                     # if the email part is an HTML content
                     # save the HTML file and optionally open it in the browser
@@ -108,12 +132,10 @@ class Download:
     # main function for reading an email
     def download_message(service, message, only_attachement, attachment_list):
         """
-        This function takes Gmail API `service` and the given `message_id` and does the following:
-            - Downloads the content of the email
-            - Prints email basic information (To, From, Subject & Date) and plain/text parts
-            - Creates a folder for each email based on the subject
-            - Downloads text/html content (if available) and saves it under the folder created as index.html
-            - Downloads any file that is attached to the email and saves it in the folder created
+        Function to
+        1. Print email basic information (To, From, Subject & Date) and plain/text parts
+        2. Creates a folder for each email based on the subject
+        3. Download the content of the email
         """
         msg = service.users().messages().get(userId='me', id=message['id'], format='full').execute()
         # parts can be the message body, or attachments

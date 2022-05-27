@@ -1,6 +1,4 @@
-"""Send an email message from the user's account.
-"""
-
+"""Importing the required modules"""
 import base64
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
@@ -58,17 +56,13 @@ class MessageManager:
             main_type, sub_type = content_type.split('/', 1)
             file_name = os.path.basename(attachment)
         
-            f = open(attachment, 'rb')
-        
-            myFile = MIMEBase(main_type, sub_type)
-            myFile.set_payload(f.read())
-            myFile.add_header('Content-Disposition', 'attachment', filename=file_name)
-            encoders.encode_base64(myFile)
-        
-            f.close()
+            with open(attachment, 'rb') as f:        
+                myFile = MIMEBase(main_type, sub_type)
+                myFile.set_payload(f.read())
+                myFile.add_header('Content-Disposition', 'attachment', filename=file_name)
+                encoders.encode_base64(myFile)
         
             message.attach(myFile)
-
         return base64.urlsafe_b64encode(message.as_bytes()).decode()
 
     def create_draft(service, user_id, message_body):
@@ -86,9 +80,7 @@ class MessageManager:
         try:
             message = {'message': message_body}
             draft = service.users().drafts().create(userId=user_id, body=message).execute()
-
             print (f"Draft id: {draft['id']}\nDraft message: {draft['message']}")
-
             return draft
         except errors.HttpError as error:
             print (f"An error occurred: {error}")
@@ -108,8 +100,7 @@ class MessageManager:
             Sent Message.
         """
         try:
-            message = (service.users().messages().send(userId=user_id, body=message)
-                       .execute())
+            message = (service.users().messages().send(userId=user_id, body=message).execute())
             print (f"Message Id: {message['id']}")
             return message
         except errors.HttpError as error:

@@ -1,16 +1,16 @@
-from __future__ import print_function
+"""Importing the required modules"""
 from googleapiclient.errors import HttpError
-
 
 class Label:
 
     def get_label_id(input_label, labels_list):
+        """Function to get label id from label name"""
         for label in labels_list:
             if label['name'] == input_label:
                 return label['id']
        
-
     def get_labels_list(service):
+        """Function to get a list of {label name, label id}"""
         try:
             results = service.users().labels().list(userId='me').execute()
             labels = results.get('labels', [])
@@ -28,6 +28,12 @@ class Label:
             print(f'An error occurred: {error}')
 
     def print_labels(service, only_names):
+        """
+        Function to 
+        1. print a list of label names
+        2. return list of label names only
+        3. return list of label names with label ids
+        """
         print("Label List: ")
         labels_list= Label.get_labels_list(service)
         label_names=[]
@@ -46,19 +52,26 @@ class Label:
             return labels_list
             
     def create_label(service, label_name):
-        label={
-        "labelListVisibility": "labelShow",
-        "messageListVisibility": "show",
-        "name": label_name
-        }
-        results = service.users().labels().create(userId='me',body=label).execute()
-        print(results)
+        """Function to create a new label"""
+        try:
+            label={
+            "labelListVisibility": "labelShow",
+            "messageListVisibility": "show",
+            "name": label_name
+            }
+            results = service.users().labels().create(userId='me',body=label).execute()
+            print(results)
+        except HttpError as error:
+            print(f'An error occurred: {error}')
 
     def add_label(service, label_id_list, message_id_list):
-        post_data= {
-        "addLabelIds": label_id_list
-        }
-   
-        for message_id in message_id_list:
-            result = service.users().messages().modify(userId='me', id=message_id, body=post_data).execute()
-            print(result)
+        """Function to add labels to messages"""
+        try:
+            post_data= {
+            "addLabelIds": label_id_list
+            }
+            for message_id in message_id_list:
+                result = service.users().messages().modify(userId='me', id=message_id, body=post_data).execute()
+                print(result)
+        except HttpError as error:
+            print(f'An error occurred: {error}')
