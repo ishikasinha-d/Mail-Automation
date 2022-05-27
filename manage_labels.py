@@ -1,19 +1,6 @@
 from __future__ import print_function
-from email import message
-from encodings import search_function
-
-import os.path
-from venv import create
-from base64 import urlsafe_b64decode
-
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-from difflib import get_close_matches as close_matches
-from pprint import pprint
 
 class Label:
 
@@ -40,7 +27,24 @@ class Label:
         except HttpError as error:
             print(f'An error occurred: {error}')
 
+    def print_labels(service, only_names):
+        print("Label List: ")
+        labels_list= Label.get_labels_list(service)
+        label_names=[]
+        # printing label names
+        for label in labels_list:
+                label_names.append(label['name'])
+                print(label['name'], end="  ")
+        print()
 
+        if only_names:
+            # just return list of names
+            return label_names
+        else:
+            # otherwise we'll need both names and ids so that 
+            # we can retreive id when the user inputs label name
+            return labels_list
+            
     def create_label(service, label_name):
         label={
         "labelListVisibility": "labelShow",

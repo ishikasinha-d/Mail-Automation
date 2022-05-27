@@ -23,8 +23,8 @@ if not creds or not creds.valid:
         token.write(creds.to_json())
 
 from mail_manager import MailManager
+ob= MailManager(creds)
 while True:
-    ob= MailManager(creds)
     ob.print_menu()
     ob.make_choice()
 

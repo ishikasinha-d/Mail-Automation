@@ -1,19 +1,6 @@
 from __future__ import print_function
-from email import message
-from encodings import search_function
-
 import os.path
-from venv import create
 from base64 import urlsafe_b64decode
-
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
-
-from difflib import get_close_matches as close_matches
-
 
 class Download:
 
@@ -53,6 +40,8 @@ class Download:
         # and make another request to get the attachment itself
         print("Saving the file:", filename, "size:", Download.get_size_format(file_size), "in ", folder_name)
         attachment_id = body.get("attachmentId")
+        # print("bodyyyyyyyyy\n", body)
+        # print("atachedddddddddd\n",attachment_id)
         attachment = service.users().messages().attachments().get(id=attachment_id, userId='me', messageId=message['id']).execute()
         data = attachment.get("data")
         filepath = os.path.join(folder_name, filename)
@@ -103,7 +92,7 @@ class Download:
                             Download.get_attachement(service, body, message, folder_name, filename, file_size)
 
     # main function for reading an email
-    def read_message(service, message, only_attachement):
+    def download_message(service, message, only_attachement):
         """
         This function takes Gmail API `service` and the given `message_id` and does the following:
             - Downloads the content of the email

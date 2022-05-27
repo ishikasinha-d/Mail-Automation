@@ -1,25 +1,12 @@
 from __future__ import print_function
-from email import message
-from encodings import search_function
 
 import os.path
-from venv import create
-
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 from difflib import get_close_matches as close_matches
 from pprint import pprint
 
-"""
-TODO: 
-1. Send draft
-2. keep resending mail for 5 mins if mssg isn't send due to some error
-3. attach encrypted files as well :https://stackoverflow.com/questions/72319880/how-to-attach-encrypted-pdf-to-gmails-attachment-using-python
-""" 
 
 class MailManager:
 
@@ -120,30 +107,11 @@ class MailManager:
         # for each email matched, read it (output plain/text to console & save HTML and attachments)
         
         for msg in searched_messages:
-            Download.read_message(service, msg, only_attachement)
-
-    def print_labels(self, only_names):
-        from manage_labels import Label
-        print("Label List: ")
-        labels_list= Label.get_labels_list(service)
-        label_names=[]
-        # printing label names
-        for label in labels_list:
-                label_names.append(label['name'])
-                print(label['name'], end="  ")
-        print()
-
-        if only_names:
-            # just return list of names
-            return label_names
-        else:
-            # otherwise we'll need both names and ids so that 
-            # we can retreive id when the user inputs label name
-            return labels_list
+            Download.download_message(service, msg, only_attachement)
 
     def create_label(self, service):
         from manage_labels import Label
-        labels_list= self.print_labels(True)
+        labels_list= Label.print_labels(service, True)
         label_name= input("Enter the name of label you want to create: ")
         if label_name not in labels_list:
             Label.create_label(service, label_name)
@@ -165,7 +133,7 @@ class MailManager:
             message_id_list.append(message['id'])
         # input list of IDs of labels to add to this message
         input_label=[]
-        labels_list= self.print_labels(False)
+        labels_list= Label.print_labels(service, False)
         input_label= input("Enter comma seperated name of labels you want to add: ")
         label_names_list= input_label.split(",")
         label_id_list=[]
