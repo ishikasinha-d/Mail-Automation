@@ -32,6 +32,7 @@ class MessageManager:
         except Exception as e:
             logger.error(f'An exception occurred: {e}')
             logger.debug('In create_message() in manage_message.py ')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
 
     def create_message_with_attachment(sender, to, subject, message_text, files):
         """Create a message for an email.
@@ -72,6 +73,7 @@ class MessageManager:
         except Exception as e:
             logger.error(f'An exception occurred: {e}')
             logger.debug('In create_message_with_attachment() in manage_message.py ')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
 
     def create_draft(service, user_id, message_body):
         """Create and insert a draft email. Print the returned draft's message and id.
@@ -88,13 +90,18 @@ class MessageManager:
         try:
             message = {'message': message_body}
             draft = service.users().drafts().create(userId=user_id, body=message).execute()
-            logger.info(f"Draft id: {draft['id']}\nDraft message: {draft['message']}")
+            logger.info(f"Draft id: {draft['id']}")
+            logger.info(f"Draft message: {draft['message']}")
             return draft
         except errors.HttpError as error:
             logger.error(f"An error occurred: {error}")
             logger.debug('In create_draft() in manage_message.py ')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
             return None
-
+        except Exception as e:
+            logger.error(f'An exception occurred: {e}')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
+            return None
 
     def send_message(service, user_id, message):
         """Send an email message.
@@ -115,4 +122,8 @@ class MessageManager:
         except errors.HttpError as error:
             logger.error(f"An error occurred: {error}")
             logger.debug('In send_message() in manage_message.py ')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
+        except Exception as e:
+            logger.error(f'An exception occurred: {e}')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
 

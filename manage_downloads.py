@@ -24,6 +24,10 @@ class Download:
         except HttpError as error:
             logger.error(f'An error occurred: {error}')
             logger.debug('In create_message_with_attachment() in manage_message.py ')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
+        except Exception as e:
+            logger.error(f'An exception occurred: {e}')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
 
 
     # utility function print bytes in a nice format
@@ -62,6 +66,7 @@ class Download:
         except Exception as e:
             logger.error(f'An exception occurred: {e}')
             logger.debug('In get_attachement_choice() in manage_downloads.py ')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
 
 
     def write_in_file(filepath, data):
@@ -72,6 +77,7 @@ class Download:
         except Exception as e:
             logger.error(f'An exception occurred: {e}')
             logger.debug('In write_in_file() in manage_downloads.py ')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
 
     def get_attachement(service, body, message, folder_name, filename, file_size):
         """
@@ -92,6 +98,7 @@ class Download:
         except Exception as e:
             logger.error(f'An exception occurred: {e}')
             logger.debug('In get_attachement() in manage_downloads.py ')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
    
     # utilityfunction to parse the content of an email partition
     def parse_parts(service, parts, folder_name, message, only_attachement, attachment_list):
@@ -145,6 +152,7 @@ class Download:
         except Exception as e:
             logger.error(f'An exception occurred: {e}')
             logger.debug('In get_attachement() in manage_downloads.py ')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
                             
 
     # main function for reading an email
@@ -206,4 +214,5 @@ class Download:
         except Exception as e:
             logger.error(f'An exception occurred: {e}')
             logger.debug('In download_message() in manage_downloads.py ')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
                             

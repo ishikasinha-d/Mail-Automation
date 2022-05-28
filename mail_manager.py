@@ -18,7 +18,6 @@ class MailManager:
         # taking sender name and mail as input and
         # initializing the object 
         self.sender_name= input("Enter sender name: ")
-        self.sender_mail= input("Enter sender mail: ")
         self.messages= [] 
 
         try:
@@ -29,6 +28,11 @@ class MailManager:
         except HttpError as error:
             logger.error(f'An error occurred: {error}')
             logger.debug('while bulding service object for Gmail API Connection in __init__() in mail_manager.py ')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
+
+        except Exception as e:
+            logger.error(f'An exception occurred: {e}')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
 
     def print_menu(self):
         """Function to print menu options"""
@@ -54,18 +58,28 @@ class MailManager:
         try:
             message_sent= MessageManager.send_message(service, 'me', self.new_message)
             logger.info(f"Mail sent by {self.sender_name}")
+            print("Mail has been sent")
         except HttpError as error:
             logger.error(f'An error occurred: {error}')
             logger.debug("In send_message() in mail_manager.py")
+            print(f"An error has occured. Please check the log file: {logger.filename}")
+        except Exception as e:
+            logger.error(f'An exception occurred: {e}')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
 
     def create_draft(self):
         """Function to create draft"""
         try:
-            draft= MessageManager.create_draft(service, self.sender_mail, self.new_message)
+            draft= MessageManager.create_draft(service, 'me', self.new_message)
             logger.info(f"Draft mail created by {self.sender_name}")
+            print("Draft has been created")
         except HttpError as error:
             logger.error(f'An error occurred: {error}')
             logger.debug("In create_draft() in mail_manager.py")
+            print(f"An error has occured. Please check the log file: {logger.filename}")
+        except Exception as e:
+            logger.error(f'An exception occurred: {e}')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
 
     def create_message(self, attachment='n'):
         """
@@ -91,19 +105,20 @@ class MailManager:
 
                 if(len(file_attachements) != 0):
                     # when one or more attachement files provided exists
-                    self.new_message = {'raw':MessageManager.create_message_with_attachment(self.sender_mail, receiver, subject , message_body, file_attachements)}
+                    self.new_message = {'raw':MessageManager.create_message_with_attachment('me', receiver, subject , message_body, file_attachements)}
                 else:
                     # when none of the attachement files provided are found existing
                     print("File paths not provided, continuing to next step...") 
-                    self.new_message= MessageManager.create_message(self.sender_mail, receiver, subject , message_body)
+                    self.new_message= MessageManager.create_message('me', receiver, subject , message_body)
             else:
                 # when the user doesn't provide any list of attachements
-                self.new_message= MessageManager.create_message(self.sender_mail, receiver, subject , message_body)
+                self.new_message= MessageManager.create_message('me', receiver, subject , message_body)
             self.messages.append([receiver,self.new_message])
             
         except Exception as e:
             logger.error(f'An exception occurred: {e}')
             logger.debug('In create_message() in mail_manager.py ')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
         
     def download(self, msg, only_attachement, attachment_list=[]):
         """
@@ -128,12 +143,15 @@ class MailManager:
             
             if only_attachement == 'Y':
                 logger.info("Attachment Download completed")
+                print("Attachment has been downloaded")
             else:
                 logger.info("Mail Download completed")
+                print("Mail has been downloaded")
         
         except Exception as e:
             logger.error(f'An exception occurred: {e}')
             logger.debug('In download() in mail_manager.py ')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
 
     def create_label(self, service):
         """Function to create a label"""
@@ -149,12 +167,14 @@ class MailManager:
                 if label_name not in labels_list:
                     Label.create_label(service, label_name)
                     logger.info(f"Label: {label_name} has been created")
+                    print("Label has been created")
                     break
                 else:
                     print("This label is already present, no need to create it!")
         except Exception as e:
             logger.error(f'An exception occurred: {e}')
             logger.debug('In create_label() in mail_manager.py ')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
 
     def add_label(self, service):
         """Function to add email to label"""
@@ -190,6 +210,7 @@ class MailManager:
         except Exception as e:
             logger.error(f'An exception occurred: {e}')
             logger.debug('In add_label() in mail_manager.py ')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
 
 
     def make_choice(self):

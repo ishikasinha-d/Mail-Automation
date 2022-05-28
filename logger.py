@@ -57,8 +57,11 @@ class Logger:
         now = datetime.now().today()
         log_message = f"{log_type}|{now.hour}:{now.minute}| {msg}\n"
         if self.mode == "file":
-            with open(self.filename, "a") as file:
-                file.write(log_message)
+            try:
+                with open(self.filename, "a") as file:
+                    file.write(log_message)
+            except Exception as e:
+                print(f"An error has occured while logging: {e}")
         else:
             print(log_message)
 

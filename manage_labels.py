@@ -28,6 +28,10 @@ class Label:
         except HttpError as error:
             logger.error(f'An error occurred: {error}')
             logger.debug('In get_labels_list() in manage_labels.py ')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
+        except Exception as e:
+            logger.error(f'An exception occurred: {e}')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
 
     def print_labels(service, only_names):
         """
@@ -56,6 +60,8 @@ class Label:
         except Exception as e:
             logger.error(f'An exception occurred: {e}')
             logger.debug('In print_labels() in manage_labels.py ')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
+        
             
     def create_label(service, label_name):
         """Function to create a new label"""
@@ -70,6 +76,10 @@ class Label:
         except HttpError as error:
             logger.error(f'An error occurred: {error}')
             logger.debug('In create_label() in manage_labels.py ')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
+        except Exception as e:
+            logger.error(f'An exception occurred: {e}')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
 
     def add_label(service, label_id_list, message_id_list):
         """Function to add labels to messages"""
@@ -83,3 +93,7 @@ class Label:
         except HttpError as error:
             logger.error(f'An error occurred: {error}')
             logger.debug('In add_label() in manage_labels.py ')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
+        except Exception as e:
+            logger.error(f'An exception occurred: {e}')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
