@@ -1,5 +1,6 @@
 """Importing the required modules"""
 from googleapiclient.errors import HttpError
+from logger import logger
 
 class Label:
 
@@ -25,7 +26,8 @@ class Label:
             return labels_list
 
         except HttpError as error:
-            print(f'An error occurred: {error}')
+            logger.error(f'An error occurred: {error}')
+            logger.debug('In get_labels_list() in manage_labels.py ')
 
     def print_labels(service, only_names):
         """
@@ -34,22 +36,26 @@ class Label:
         2. return list of label names only
         3. return list of label names with label ids
         """
-        print("Label List: ")
-        labels_list= Label.get_labels_list(service)
-        label_names=[]
-        # printing label names
-        for label in labels_list:
-                label_names.append(label['name'])
-                print(label['name'], end="  ")
-        print()
+        try:
+            print("Label List: ")
+            labels_list= Label.get_labels_list(service)
+            label_names=[]
+            # printing label names
+            for label in labels_list:
+                    label_names.append(label['name'])
+                    print(label['name'], end="  ")
+            print()
 
-        if only_names:
-            # just return list of names
-            return label_names
-        else:
-            # otherwise we'll need both names and ids so that 
-            # we can retreive id when the user inputs label name
-            return labels_list
+            if only_names:
+                # just return list of names
+                return label_names
+            else:
+                # otherwise we'll need both names and ids so that 
+                # we can retreive id when the user inputs label name
+                return labels_list
+        except Exception as e:
+            logger.error(f'An exception occurred: {e}')
+            logger.debug('In print_labels() in manage_labels.py ')
             
     def create_label(service, label_name):
         """Function to create a new label"""
@@ -60,9 +66,10 @@ class Label:
             "name": label_name
             }
             results = service.users().labels().create(userId='me',body=label).execute()
-            print(results)
+            logger.debug(results)
         except HttpError as error:
-            print(f'An error occurred: {error}')
+            logger.error(f'An error occurred: {error}')
+            logger.debug('In create_label() in manage_labels.py ')
 
     def add_label(service, label_id_list, message_id_list):
         """Function to add labels to messages"""
@@ -72,6 +79,7 @@ class Label:
             }
             for message_id in message_id_list:
                 result = service.users().messages().modify(userId='me', id=message_id, body=post_data).execute()
-                print(result)
+                logger.debug(result)
         except HttpError as error:
-            print(f'An error occurred: {error}')
+            logger.error(f'An error occurred: {error}')
+            logger.debug('In add_label() in manage_labels.py ')
