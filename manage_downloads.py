@@ -1,9 +1,11 @@
 """Importing required modules"""
+from email import message
 import os.path
 from base64 import urlsafe_b64decode
 from googleapiclient.errors import HttpError
 from tabulate import tabulate
 from logger import logger
+from simple_term_menu import TerminalMenu
 
 class Download:
 
@@ -28,6 +30,59 @@ class Download:
         except Exception as e:
             logger.error(f'An exception occurred: {e}')
             print(f"An error has occured. Please check the log file: {logger.filename}")
+
+    def get_mails_on_page(service):
+         """Function to get mails in paginated manner"""
+         try:
+             result = service.users().messages().list(userId='me').execute()
+             if 'messages' in result:
+                 yield result['messages']
+             # searching on each page as the messages are paginated
+             while 'nextPageToken' in result:
+                 page_token = result['nextPageToken']
+                 result = service.users().messages().list(userId='me', pageToken=page_token).execute()
+                 if 'messages' in result:
+                     yield result['messages']
+         except HttpError as error:
+                 logger.error(f'An error occurred: {error}')
+                 logger.debug('In create_message_with_attachment() in manage_message.py ')
+                 print(f"An error has occured. Please check the log file: {logger.filename}")
+         except Exception as e:
+                 logger.error(f'An exception occurred: {e}')
+                 print(f"An error has occured. Please check the log file: {logger.filename}")
+
+    def select_mail(service):
+        page =1 
+        # mails_on_page is a generator object
+        mails_on_page= Download.get_mails_on_page(service)
+        while True:
+            print(f"Printing mails on page {page}: ")
+            page= page+1
+        
+            message_id_list = []
+            try:
+                message_id_list = next(mails_on_page)
+            except StopIteration:
+                print("All pages over, exiting....")
+                break
+            
+            msg_sub_list= []
+            for indx,msg in enumerate(message_id_list):
+                msg_sub_list.append(f"Message - {indx}|{msg['id']} ")
+            msg_sub_list.append('next')
+
+            terminal_menu = TerminalMenu(msg_sub_list, preview_command="python3 ./utils.py {}", preview_size=0.75)
+            menu_entry_index = terminal_menu.show()
+
+            if menu_entry_index == None:
+                break
+
+            if msg_sub_list[menu_entry_index]=='next':
+                continue
+            else:
+                print(msg_sub_list[menu_entry_index])
+                return message_id_list[menu_entry_index]
+                break
 
 
     # utility function print bytes in a nice format
@@ -69,10 +124,10 @@ class Download:
             print(f"An error has occured. Please check the log file: {logger.filename}")
 
 
-    def write_in_file(filepath, data):
+    def write_in_file(filepath, data, mode= "ab"):
         """Function to download data"""
         try:
-            with open(filepath, "ab") as f:
+            with open(filepath, mode) as f:
                 f.write(urlsafe_b64decode(data))
         except Exception as e:
             logger.error(f'An exception occurred: {e}')

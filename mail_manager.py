@@ -11,6 +11,7 @@ from manage_downloads import Download
 from manage_message import MessageManager
 from logger import logger
 
+
 class MailManager:
 
     def __init__(self, creds):
@@ -239,7 +240,7 @@ class MailManager:
         # user chooses to send email
         elif close_matches(choice, op2, 1, 0.9):
             user_response= input("Do you want to attach any file ? Y/N: ")
-            if user_response in ['y', 'yes','Y', 'Yes', 'YES']:
+            if user_response.lower() in ['y', 'yes']:
                 self.create_message('y')
             else:
                 self.create_message()
@@ -260,8 +261,19 @@ class MailManager:
         
         # user chooses to download email
         elif close_matches(choice, op4, 1, 0.9):
-            msg = input("Enter the mail you want to download: ")
-            self.download(msg, 'N')
+            choice= input("How do you want to download mail?\n 1. By searching for message \n 2. By selecting from a list of mails\n")
+            while True:
+                if choice == '1':
+                    msg = input("Enter the mail you want to download: ")
+                    self.download(msg, 'N')
+                    break
+                elif choice == '2':
+                    msg= Download.select_mail(service)
+                    Download.download_message(service, msg, 'N', [])
+
+                    break
+                else:
+                    print("Please enter either 1 or 2")
 
         # user choses to create label
         elif close_matches(choice, op5, 1, 0.9):
