@@ -90,8 +90,8 @@ class MessageManager:
         try:
             message = {'message': message_body}
             draft = service.users().drafts().create(userId=user_id, body=message).execute()
-            logger.info(f"Draft id: {draft['id']}")
-            logger.info(f"Draft message: {draft['message']}")
+            logger.debug(f"Draft id: {draft['id']}")
+            logger.debug(f"Draft message: {draft['message']}")
             return draft
         except errors.HttpError as error:
             logger.error(f"An error occurred: {error}")
@@ -117,7 +117,7 @@ class MessageManager:
         """
         try:
             message = (service.users().messages().send(userId=user_id, body=message).execute())
-            logger.info(f"Message Id: {message['id']}")
+            logger.debug(f"Message Id: {message['id']}")
             return message
         except errors.HttpError as error:
             logger.error(f"An error occurred: {error}")

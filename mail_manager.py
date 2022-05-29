@@ -133,7 +133,7 @@ class MailManager:
             print("Matching results:- \n")
             # when the user wants to download the whole mail 
             if only_attachement=='N':
-                pprint(searched_messages)
+                logger.debug(f"Matching results: {searched_messages}")
             # when user wants to download the whole mail then only_attachement=='N'
             # therefore for each email matched, download plain/text (HTML) and attachments
             # when user wants to download only attachments then only_attachement=='Y'
@@ -183,11 +183,10 @@ class MailManager:
             query= input("Enter the message you want to add label to: ")
             # search the message and print the results
             messages= Download.search_messages(service, query)
-            pprint(messages)
+            logger.debug(f"Adding label to: {messages}")
             # creating list of message ids
             message_id_list=[]
             for message in messages:
-                print(message['id'], end= "  ")
                 message_id_list.append(message['id'])
             # input list of labels to add to this message
             input_label=[]
@@ -221,7 +220,7 @@ class MailManager:
         print("What option do you want to choose? ")
         choice= input() 
         op1= ['1', 'one', 'option one', 'op1', 'option 1', 'create draft']
-        op2= ['2', 'two', 'option two', 'op2', 'option 2', 'send message', 'send mssg', 'send msg']
+        op2= ['2', 'two', 'option two', 'op2', 'option 2', 'send message', 'send mssg', 'send msg', 'send mail', 'send email']
         op3= ['3', 'three', 'option three', 'op3', 'option 3', 'download attachement']
         op4= ['4', 'four', 'option four', 'op4', 'option 4', 'download mail']
         op5= ['5', 'five', 'option five', 'op5', 'option 5', 'create label']
@@ -273,7 +272,7 @@ class MailManager:
             self.add_label(service)
 
         # user chooses to exit
-        elif close_matches(choice, op7, 1, 0.9):
+        elif close_matches(choice, op7, 1, 0.8):
             print("Exiting...")
             logger.log("API Connection broken")
             return False

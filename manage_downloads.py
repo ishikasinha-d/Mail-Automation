@@ -209,7 +209,7 @@ class Download:
 
             Download.parse_parts(service, parts, folder_name, message, only_attachement, attachment_list)
             if only_attachement == 'N':
-                print("="*50)
+                print("="*100)
         
         except Exception as e:
             logger.error(f'An exception occurred: {e}')
