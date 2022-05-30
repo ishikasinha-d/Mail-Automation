@@ -4,7 +4,6 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 from difflib import get_close_matches as close_matches
-from pprint import pprint
 
 from manage_labels import Label
 from manage_downloads import Download
@@ -201,7 +200,7 @@ class MailManager:
                 label_id= Label.get_label_id(label_name,labels_list)
                 label_id_list.append(label_id)
                 print(f"{label_name}: {label_id}")
-            # adding all the labels provided to all the email essages found
+            # adding all the labels provided to all the email messages found
             print("\nAdding label...")
             Label.add_label(service, label_id_list, message_id_list)
             print("DONE")
@@ -269,7 +268,12 @@ class MailManager:
                     break
                 elif choice == '2':
                     msg= Download.select_mail(service)
-                    Download.download_message(service, msg, 'N', [])
+                    # This handles in case user doesnot selects any mail
+                    # and presses q to exit
+                    if msg == None:
+                        print("Mail not selected, exiting to main menu...")
+                    else:
+                        Download.download_message(service, msg, 'N', [])
 
                     break
                 else:

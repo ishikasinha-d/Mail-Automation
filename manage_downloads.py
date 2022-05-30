@@ -6,6 +6,7 @@ from googleapiclient.errors import HttpError
 from tabulate import tabulate
 from logger import logger
 from simple_term_menu import TerminalMenu
+from utils import get_preview, clean_statusbar_prev
 
 class Download:
 
@@ -55,6 +56,7 @@ class Download:
         page =1 
         # mails_on_page is a generator object
         mails_on_page= Download.get_mails_on_page(service)
+        
         while True:
             print(f"Printing mails on page {page}: ")
             page= page+1
@@ -68,21 +70,38 @@ class Download:
             
             msg_sub_list= []
             for indx,msg in enumerate(message_id_list):
-                msg_sub_list.append(f"Message - {indx}|{msg['id']} ")
+                # If a menu entry has an additional data component (separated by |), it is passed instead to the preview command ex 180fab35397e3119 
+                # however the first data component is passed in the status bar ex. Message 0
+                msg_sub_list.append(f"Message - {indx}|{msg['id']}")
             msg_sub_list.append('next')
 
-            terminal_menu = TerminalMenu(msg_sub_list, preview_command="python3 ./utils.py {}", preview_size=0.75)
+            # preview_size is used to control the height of the preview window. It is given as fraction of the complete terminal height (default: 0.25).
+            # The width cannot be set, it is always the complete width of the terminal window.
+            # menu_highlight_style: The style of the selected menu entry
+            # status_bar: places a status bar below the menu
+    
+            # for color of the selected item in the menu, bg= background, fg= foreground, standout= default
+            main_menu_style = ("bg_blue", "fg_green", "standout", )
+
+            terminal_menu = TerminalMenu(
+                msg_sub_list, 
+                preview_command=lambda id : get_preview(service, id), 
+                preview_size=0.75, 
+                title="Choose Email",
+                menu_highlight_style = main_menu_style,
+                status_bar= lambda mssg_num : clean_statusbar_prev(mssg_num, len(message_id_list))
+                )
+            # show returns the selected menu entry index or None if the menu was canceled
             menu_entry_index = terminal_menu.show()
 
+            # when user enters q
             if menu_entry_index == None:
-                break
+                return None
 
             if msg_sub_list[menu_entry_index]=='next':
                 continue
             else:
-                print(msg_sub_list[menu_entry_index])
                 return message_id_list[menu_entry_index]
-                break
 
 
     # utility function print bytes in a nice format
@@ -244,7 +263,10 @@ class Download:
                         # make a directory with the name of the subject
                         folder_name = Download.clean(value)
                         # to download within downloads folder
-                        folder_name= f"Downloads/{folder_name}"
+                        path= os.getcwd()+"/Downloads"
+                        if not os.path.isdir(path):
+                            os.mkdir(path)
+                        folder_name= f"{path}/{folder_name}"
                         # we will also handle emails with the same subject name
                         folder_counter = 0
                         while os.path.isdir(folder_name):
