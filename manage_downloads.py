@@ -161,6 +161,7 @@ class Download:
         """
         try:
             print("Saving the file:", filename, "size:", Download.get_size_format(file_size), "in ", folder_name)
+            logger.info(f"Saving the file: {filename} in {folder_name}")
             attachment_id = body.get("attachmentId")
             attachment = service.users().messages().attachments().get(id=attachment_id, userId='me', messageId=message['id']).execute()
             data = attachment.get("data")
@@ -211,6 +212,7 @@ class Download:
                         os.mkdir(folder_name)
                         filepath = os.path.join(folder_name, filename)
                         print("Saving HTML to", filepath)
+                        logger.info(f"Saving HTML to {filepath}")
                         Download.write_in_file(filepath, data)
                     
                     # attachment other than a plain text or HTML

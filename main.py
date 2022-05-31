@@ -1,5 +1,5 @@
 """Importing required modules"""
-import os.path
+from os import path
 from googleapiclient.errors import HttpError
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -15,7 +15,7 @@ try:
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
-    if os.path.exists('token.json'):
+    if path.exists('token.json'):
         creds = Credentials.from_authorized_user_file('token.json', SCOPES)
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:

@@ -141,12 +141,6 @@ class MailManager:
             for msg in searched_messages:
                 Download.download_message(service, msg, only_attachement, attachment_list)
             
-            if only_attachement == 'Y':
-                logger.info("Attachment Download completed")
-                print("Attachment has been downloaded")
-            else:
-                logger.info("Mail Download completed")
-                print("Mail has been downloaded")
         
         except Exception as e:
             logger.error(f'An exception occurred: {e}')
