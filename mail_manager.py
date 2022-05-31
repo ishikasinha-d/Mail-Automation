@@ -48,7 +48,7 @@ class MailManager:
                 4.Download email
                 5.Create Label
                 6.Add an email to label
-                7.Exit
+                7.Exit/Quit
     """
     )
 
@@ -131,6 +131,7 @@ class MailManager:
             # get emails that match the query you specify
             searched_messages= Download.search_messages(service, msg)
             print("Matching results:- \n")
+            
             # when the user wants to download the whole mail 
             if only_attachement=='N':
                 logger.debug(f"Matching results: {searched_messages}")
@@ -147,6 +148,22 @@ class MailManager:
             logger.debug('In download() in mail_manager.py ')
             print(f"An error has occured. Please check the log file: {logger.filename}")
 
+    def download_attachment(self,attachment_list):
+        #printing the attachments in a tabular format and taking user choice as input
+        try:
+            if(len(attachment_list)>0):
+                response= Download.get_attachement_choice(attachment_list)
+                chosen_attachment= attachment_list[response]
+                # downloading the attachment chosen by the user
+                Download.get_attachement(service, chosen_attachment['body'], chosen_attachment['message'],\
+                                chosen_attachment['folder_name'], chosen_attachment['filename'], chosen_attachment['file_size'] )
+            else:
+                print("This mail has 0 attachments")
+        except Exception as e:
+            logger.error(f'An exception occurred: {e}')
+            logger.debug('In download_attachment() in mail_manager.py ')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
+    
     def create_label(self, service):
         """Function to create a label"""
         try:
@@ -241,16 +258,27 @@ class MailManager:
         
         # user chooses to download attachment
         elif close_matches(choice, op3, 1, 0.9):
-            msg = input("Enter the attachement you want to download: ")
-            # searching the attachments matching the query
-            attachment_list=[]
-            self.download(msg, 'Y',attachment_list)
-            # printing the attachments in a tabular format and taking user choice as input
-            response= Download.get_attachement_choice(attachment_list)
-            chosen_attachment= attachment_list[response]
-            # downloading the attachment chosen by the user
-            Download.get_attachement(service, chosen_attachment['body'], chosen_attachment['message'],\
-                             chosen_attachment['folder_name'], chosen_attachment['filename'], chosen_attachment['file_size'] )
+            choice= input("How do you want to download attachment?\n 1. By searching for attachement \n 2. By selecting a mail from a list of mails and then the attachment \n")
+            while True:
+                attachment_list=[]
+                if choice == '1':
+                    msg = input("Enter the attachement you want to download: ")
+                    # searching the attachments matching the query
+                    self.download(msg, 'Y',attachment_list)
+                    self.download_attachment(attachment_list)
+                    break
+                elif choice == '2':
+                    msg= Download.select_mail(service)
+                    # This handles in case user doesnot selects any mail
+                    # and presses q to exit
+                    if msg == None:
+                        print("Mail not selected, exiting to main menu...")
+                    else:
+                        Download.download_message(service, msg, 'Y', attachment_list)                        
+                        self.download_attachment(attachment_list)
+                    break
+                # print(attachment_list)
+                
         
         # user chooses to download email
         elif close_matches(choice, op4, 1, 0.9):
