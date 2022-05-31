@@ -219,7 +219,7 @@ class MailManager:
         op4= ['4', 'four', 'option four', 'op4', 'option 4', 'download mail']
         op5= ['5', 'five', 'option five', 'op5', 'option 5', 'create label']
         op6= ['6', 'six', 'option six', 'op6', 'option 6', 'add label']
-        op7= ['7', 'seven', 'option seven', 'op7', 'option 7', 'exit', 'quit']
+        op7= ['7', 'seven', 'option seven', 'op7', 'option 7', 'exit', 'quit', 'q']
         
         # user chooses to create draft
         if close_matches(choice, op1, 1, 0.9):

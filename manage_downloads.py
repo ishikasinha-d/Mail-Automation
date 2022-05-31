@@ -13,7 +13,7 @@ class Download:
     def search_messages(service, query):
         """Function to search messages matching to the query"""
         try:
-            result = service.users().messages().list(userId='me',q=query).execute()
+            result = service.users().messages().list(userId='me',q=query, includeSpamTrash=False).execute()
             messages = []
             if 'messages' in result:
                 messages.extend(result['messages'])
