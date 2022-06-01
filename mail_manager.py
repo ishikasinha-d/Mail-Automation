@@ -249,13 +249,26 @@ class MailManager:
 
         # user chooses to send email
         elif close_matches(choice, op2, 1, 0.9):
-            user_response= input("Do you want to attach any file ? Y/N: ")
-            if user_response.lower() in ['y', 'yes']:
-                self.create_message('y')
-            else:
-                self.create_message()
-            self.send_message()
-        
+            choice= input("Make a choice: \n 1. Send existing draft \n 2. Send a new mail message \n")
+            while True:
+                if choice == '1':
+                    draft_msg= MessageManager.select_draft(service)
+                    if draft_msg == None:
+                        print("Draft not selected, exiting to main menu...")
+                    else:
+                        MessageManager.send_draft(service, draft_msg['id'])
+                    break
+                elif choice == '2':
+                    user_response= input("Do you want to attach any file ? Y/N: ")
+                    if user_response.lower() in ['y', 'yes']:
+                        self.create_message('y')
+                    else:
+                        self.create_message()
+                    self.send_message()
+                    break
+                else:
+                    print("Please enter either 1 or 2")
+            
         # user chooses to download attachment
         elif close_matches(choice, op3, 1, 0.9):
             choice= input("How do you want to download attachment?\n 1. By searching for attachement \n 2. By selecting a mail from a list of mails and then the attachment \n")
@@ -277,7 +290,8 @@ class MailManager:
                         Download.download_message(service, msg, 'Y', attachment_list)                        
                         self.download_attachment(attachment_list)
                     break
-                # print(attachment_list)
+                else:
+                    print("Please enter either 1 or 2")
                 
         
         # user chooses to download email

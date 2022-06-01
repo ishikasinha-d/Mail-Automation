@@ -8,6 +8,9 @@ import os
 from email import encoders
 from logger import logger
 from apiclient import errors
+from googleapiclient.errors import HttpError
+from simple_term_menu import TerminalMenu
+from utils import get_preview, clean_statusbar_prev
 
 class MessageManager:
 
@@ -127,3 +130,93 @@ class MessageManager:
             logger.error(f'An exception occurred: {e}')
             print(f"An error has occured. Please check the log file: {logger.filename}")
 
+    def get_drafts_on_page(service):
+            """Function to get drafts in paginated manner"""
+            try:
+                result = service.users().drafts().list(userId='me').execute()
+                if 'drafts' in result:
+                    yield result['drafts']
+                # searching on each page as the messages are paginated
+                while 'nextPageToken' in result:
+                    page_token = result['nextPageToken']
+                    result = service.users().drafts().list(userId='me', pageToken=page_token).execute()
+                    if 'drafts' in result:
+                        yield result['drafts']
+            except HttpError as error:
+                    logger.error(f'An error occurred: {error}')
+                    logger.debug('In get_drafts_on_page() in manage_message.py ')
+                    print(f"An error has occured. Please check the log file: {logger.filename}")
+            except Exception as e:
+                    logger.error(f'An exception occurred: {e}')
+                    logger.debug('In get_drafts_on_page() in manage_message.py ')
+                    print(f"An error has occured. Please check the log file: {logger.filename}")
+
+    def select_draft(service):
+        try:
+            page =1 
+            # drafts_on_page is a generator object
+            drafts_on_page= MessageManager.get_drafts_on_page(service)
+            
+            while True:
+                print(f"Printing drafts on page {page}: ")
+                page= page+1
+            
+                draft_id_list = []
+                try:
+                    draft_id_list = next(drafts_on_page)
+                except StopIteration:
+                    print("All pages over, exiting....")
+                    break
+                
+                msg_sub_list= []
+                for indx,msg in enumerate(draft_id_list):
+                    # If a menu entry has an additional data component (separated by |), it is passed instead to the preview command ex 180fab35397e3119 
+                    # however the first data component is passed in the status bar ex. Message 0
+                    msg_sub_list.append(f"Message - {indx}|{msg['id']}")
+                msg_sub_list.append('next')
+
+                # preview_size is used to control the height of the preview window. It is given as fraction of the complete terminal height (default: 0.25).
+                # The width cannot be set, it is always the complete width of the terminal window.
+                # menu_highlight_style: The style of the selected menu entry
+                # status_bar: places a status bar below the menu
+        
+                # for color of the selected item in the menu, bg= background, fg= foreground, standout= default
+                main_menu_style = ("bg_blue", "fg_green", "standout", )
+
+                terminal_menu = TerminalMenu(
+                    msg_sub_list, 
+                    preview_command=lambda id : get_preview(service, id), 
+                    preview_size=0.75, 
+                    title="Choose Email",
+                    menu_highlight_style = main_menu_style,
+                    status_bar= lambda mssg_num : clean_statusbar_prev(mssg_num, len(draft_id_list))
+                    )
+                # show returns the selected menu entry index or None if the menu was canceled
+                menu_entry_index = terminal_menu.show()
+
+                # when user enters q
+                if menu_entry_index == None:
+                    return None
+
+                if msg_sub_list[menu_entry_index]=='next':
+                    continue
+                else:
+                    return draft_id_list[menu_entry_index]
+        except Exception as e:
+            logger.error(f'An exception occurred: {e}')
+            logger.debug('In get_drafts_on_page() in manage_message.py ')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
+
+    def send_draft(service, draft_id):
+        try:
+            service.users().drafts().send(userId='me', body={ 'id': draft_id }).execute()
+            print("Draft sent")
+            logger.info("Draft Id: {draft_id} has been sent")
+        except HttpError as error:
+            logger.error(f'An error occurred: {error}')
+            logger.debug('In send_draft() in manage_message.py ')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
+        except Exception as e:
+            logger.error(f'An exception occurred: {e}')
+            logger.debug('In send_draft() in manage_message.py ')
+            print(f"An error has occured. Please check the log file: {logger.filename}")
