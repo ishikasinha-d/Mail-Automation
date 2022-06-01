@@ -168,12 +168,12 @@ class MessageManager:
                     print("All pages over, exiting....")
                     break
                 
-                msg_sub_list= []
-                for indx,msg in enumerate(draft_id_list):
+                draft_sub_list= []
+                for indx,draft_msg in enumerate(draft_id_list):
                     # If a menu entry has an additional data component (separated by |), it is passed instead to the preview command ex 180fab35397e3119 
                     # however the first data component is passed in the status bar ex. Message 0
-                    msg_sub_list.append(f"Message - {indx}|{msg['id']}")
-                msg_sub_list.append('next')
+                    draft_sub_list.append(f"Message - {indx}|{draft_msg['message']['id']}")
+                draft_sub_list.append('next')
 
                 # preview_size is used to control the height of the preview window. It is given as fraction of the complete terminal height (default: 0.25).
                 # The width cannot be set, it is always the complete width of the terminal window.
@@ -184,7 +184,7 @@ class MessageManager:
                 main_menu_style = ("bg_blue", "fg_green", "standout", )
 
                 terminal_menu = TerminalMenu(
-                    msg_sub_list, 
+                    draft_sub_list, 
                     preview_command=lambda id : get_preview(service, id), 
                     preview_size=0.75, 
                     title="Choose Email",
@@ -198,7 +198,7 @@ class MessageManager:
                 if menu_entry_index == None:
                     return None
 
-                if msg_sub_list[menu_entry_index]=='next':
+                if draft_sub_list[menu_entry_index]=='next':
                     continue
                 else:
                     return draft_id_list[menu_entry_index]
