@@ -86,12 +86,16 @@ def get_preview(service, messageId):
                 if name.lower() == "date":
                     date= value
 
-        # creating beautiful soup oject to convert html to text
         if msg_body != None:
+            # creating beautiful soup oject to convert html to text
             soup = BeautifulSoup(msg_body.decode(), features="html.parser")
             msg_body = get_clean_string(soup.get_text())
         else:
-            msg_body = "\nNo text found in message body"
+            # Preview won't be available if
+            # 1. it is a draft
+            # 2. the email has an image and the text is within 
+            # 3. no text in the mail
+            msg_body = "\nPreview not available"
         prev_string =  (f"""
         From: {msg_from}
         To: {msg_to}

@@ -172,7 +172,7 @@ class MessageManager:
                 for indx,draft_msg in enumerate(draft_id_list):
                     # If a menu entry has an additional data component (separated by |), it is passed instead to the preview command ex 180fab35397e3119 
                     # however the first data component is passed in the status bar ex. Message 0
-                    draft_sub_list.append(f"Message - {indx}|{draft_msg['message']['id']}")
+                    draft_sub_list.append(f"Draft Message - {indx}|{draft_msg['message']['id']}")
                 draft_sub_list.append('next')
 
                 # preview_size is used to control the height of the preview window. It is given as fraction of the complete terminal height (default: 0.25).
@@ -187,7 +187,7 @@ class MessageManager:
                     draft_sub_list, 
                     preview_command=lambda id : get_preview(service, id), 
                     preview_size=0.75, 
-                    title="Choose Email",
+                    title="Choose Draft",
                     menu_highlight_style = main_menu_style,
                     status_bar= lambda mssg_num : clean_statusbar_prev(mssg_num, len(draft_id_list))
                     )
