@@ -35,7 +35,7 @@ class Download:
     def get_mails_on_page(service):
          """Function to get mails in paginated manner"""
          try:
-             result = service.users().messages().list(userId='me').execute()
+             result = service.users().messages().list(userId='me', labelIds=['INBOX'], includeSpamTrash=False).execute()
              if 'messages' in result:
                  yield result['messages']
              # searching on each page as the messages are paginated
