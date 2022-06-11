@@ -147,7 +147,7 @@ It will prompt you if want to attach a file or not.
 Enter a valid receiver’s mail, subject and message.
 
 <a>
-    <img src="./img/8.png" width="450" height ="200"/>
+    <img src="./img/8.png" width="450" height ="170"/>
 
   </a>
 
@@ -176,7 +176,7 @@ You will be prompted to make a choice:
 2. <ins>Send a new mail message:</ins> It will prompt you if you want to attach any files. Enter vaild receiver’s mail subject and body.If you entered yes to attach files, it will prompt you to enter files you want to attach with full path.
 
 <a>
-    <img src="./img/11.png" width="500" height ="300"/>
+    <img src="./img/11.png" width="360" height ="170"/>
 
   </a>
 
@@ -217,8 +217,11 @@ Enter the serial no. of the particular attachement from the table.The attachemen
   </a>
 
 **4. Feature: Download a mail**
+                                                     
 **Description:**
+                                                     
 To download mail, enter 4
+                                                     
 It will prompt you if you want to download
 
 1. <ins>by searching for a message:</ins> If you select 1, all the messages matching your query will be
@@ -227,7 +230,7 @@ It will prompt you if you want to download
 2. <ins>by selecting from a list of mails:</ins> If you select 2, an interacive menu will be displayed.
 
 <a>
-    <img src="./img/16.png" width="300" height ="300"/>
+    <img src="./img/16.png" width="800" height ="400"/>
 
   </a>
 
@@ -235,50 +238,56 @@ You can now select a menu entry with the arrow keys or j/k (vim motions) and acc
 To view mails on the next page, select the last option ‘next’
 
 <a>
-    <img src="./img/17.png" width="300" height ="300"/>
+    <img src="./img/17.png" width="600" height ="200"/>
 
   </a>
 
   <a>
-    <img src="./img/18.png" width="300" height ="300"/>
+    <img src="./img/18.png" width="600" height ="250"/>
 
   </a>
 
 Once you select the mail, press enter. The mail along with the attachments if any, will be downloaded.
 
 **5. Feature: Create a Label**
+                                                     
 **Description:**
+                                                     
 To create label, enter 5.
+                                                     
 A list of already present labels will be displayed. Enter a new label.
 
 <a>
-    <img src="./img/19.png" width="300" height ="300"/>
+    <img src="./img/19.png" width="600" height ="160"/>
 
   </a>
 
   <a>
-    <img src="./img/20.png" width="300" height ="300"/>
+    <img src="./img/20.png" width="500" height ="200"/>
 
   </a>
 
 **As you can see a new label ‘GREEN’ has been added.**
 
 **6. Feature: Add messages to Label**
+                                                     
 **Description:**
+                                                     
 To add messages to Label, enter 6.
+                                                     
 Enter message and a label from the list of already exiting labels.
 
 <a>
-    <img src="./img/21.png" width="300" height ="300"/>
+    <img src="./img/21.png" width="600" height ="160"/>
 
   </a>
 
   <a>
-    <img src="./img/22.png" width="300" height ="300"/>
+    <img src="./img/22.png" width="400" height ="300"/>
 
   </a>
 
 **As you can see on the right of the subject, GREEN label has been added.**
 
 **Menu Option 7**
-To exit/quit, enter 7
+                                                     To exit/quit, enter 7
