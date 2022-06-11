@@ -94,7 +94,7 @@ Currently, Linux and macOS are supported.
 ## Flowchart
 
 <a>
-    <img src="./img/5.png" width="1000" height ="500"/>
+    <img src="./img/5.png" width="1000" height ="400"/>
   </a>
 
 ## How to use?
@@ -290,4 +290,4 @@ Enter message and a label from the list of already exiting labels.
 **As you can see on the right of the subject, GREEN label has been added.**
 
 **Menu Option 7**
-                                                     To exit/quit, enter 7
+To exit/quit, enter 7
